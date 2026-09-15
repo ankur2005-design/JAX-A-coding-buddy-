@@ -146,5 +146,3 @@ while True:
     response = llm(text)
 
     asyncio.run(speak(response))
-
-    print(chat_history)
