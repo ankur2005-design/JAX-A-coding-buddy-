@@ -103,7 +103,7 @@ def llm(text):
     ]
 
     chat_history.append(f"User: {text}")
-    chat_history.append(f"Jason: {response.text}")
+    chat_history.append(f"Jax: {response.text}")
 
     chat_history = chat_history[-10:]
 
@@ -112,7 +112,7 @@ def llm(text):
 
     response = clean_text(response.text)
 
-    print("Jason : ", response)
+    print("Jax : ", response)
     return response
 
 while True:
