@@ -3,6 +3,10 @@ import edge_tts
 import asyncio
 import os
 import re
+
+import logging
+logging.disable(logging.WARNING)
+
 import speech_recognition as sr
 from dotenv import load_dotenv
 load_dotenv()
@@ -31,7 +35,7 @@ async def speak(response):
     pygame.mixer.music.play()
 
     while pygame.mixer.music.get_busy():
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0.05)
 
     pygame.mixer.music.unload()
     os.remove("answer.mp3")
@@ -120,6 +124,7 @@ def llm(text):
 
     response = clean_text(response.text)
 
+    print("User : ", text)
     print("Jax : ", response)
     return response
 
