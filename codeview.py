@@ -21,8 +21,8 @@ if os.path.exists("chat_history.json"):
         chat_history = json.load(file)
 
 async def speak(response):
-    voice = "en-US-AriaNeural"
-    tts = edge_tts.Communicate(response , voice , rate = "+14%")
+    voice = "en-IN-PrabhatNeural"
+    tts = edge_tts.Communicate(response , voice , rate = "+17%")
 
     await tts.save("answer.mp3")
 
@@ -78,15 +78,30 @@ def llm(text):
 
     content = [
         prompt,
-        text,
-        history,
-        mem
+
+        f"""
+        RELEVANT CHAT HISTORY:
+        {history}
+        """,
+
+        f"""
+        RELEVANT LONG-TERM MEMORY:
+        {mem}
+        """,
+
+        f"""
+        CURRENT USER MESSAGE:
+        {text}
+        """
     ]
 
     if "check" in text or "wrong" in text:       
         screenshot , code = ss()
         content.append(screenshot)
-        content.append(code)
+        content.append(f"""
+        CODE FROM USER'S SCREEN:
+        {code}
+        """)
         chat_history.append(f"User: {text}")
         chat_history.append(f"Code:\n{code}")
 
@@ -94,13 +109,6 @@ def llm(text):
         model = "gemini-3.5-flash-lite",
         contents = content
     )
-
-    content = [
-        prompt,
-        text,
-        chat_history,
-        mem
-    ]
 
     chat_history.append(f"User: {text}")
     chat_history.append(f"Jax: {response.text}")
