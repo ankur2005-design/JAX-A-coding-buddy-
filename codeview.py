@@ -3,6 +3,7 @@ import edge_tts
 import asyncio
 import os
 import re
+import subprocess
 
 import logging
 logging.disable(logging.WARNING)
@@ -26,19 +27,31 @@ if os.path.exists("chat_history.json"):
 
 async def speak(response):
     voice = "en-US-JennyNeural"
-    tts = edge_tts.Communicate(response , voice , rate = "+20%")
 
-    await tts.save("answer.mp3")
+    communicate = edge_tts.Communicate(
+        response,
+        voice,
+        rate="+15%"
+    )
 
-    pygame.mixer.init()
-    pygame.mixer.music.load("answer.mp3")
-    pygame.mixer.music.play()
+    process = subprocess.Popen(
+        [
+            "mpv",
+            "--no-video",
+            "--really-quiet",
+            "--",
+            "fd://0"
+        ],
+        stdin=subprocess.PIPE
+    )
 
-    while pygame.mixer.music.get_busy():
-        await asyncio.sleep(0.05)
+    async for chunk in communicate.stream():
+        if chunk["type"] == "audio":
+            process.stdin.write(chunk["data"])
+            process.stdin.flush()
 
-    pygame.mixer.music.unload()
-    os.remove("answer.mp3")
+    process.stdin.close()
+    process.wait()
 
 
 def listen():
