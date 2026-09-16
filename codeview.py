@@ -25,7 +25,7 @@ if os.path.exists("chat_history.json"):
         chat_history = json.load(file)
 
 async def speak(response):
-    voice = "en-IN-PrabhatNeural"
+    voice = "en-US-JennyNeural"
     tts = edge_tts.Communicate(response , voice , rate = "+20%")
 
     await tts.save("answer.mp3")
