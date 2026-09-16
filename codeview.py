@@ -11,7 +11,6 @@ logging.disable(logging.WARNING)
 import speech_recognition as sr
 from dotenv import load_dotenv
 load_dotenv()
-import pygame
 import json
 from ss import ss
 from prompt import prompt
@@ -26,7 +25,7 @@ if os.path.exists("chat_history.json"):
         chat_history = json.load(file)
 
 async def speak(response):
-    voice = "en-US-JennyNeural"
+    voice = "en-US-RogerNeural"
 
     communicate = edge_tts.Communicate(
         response,
@@ -87,7 +86,6 @@ client = genai.Client(api_key = api_key)
 prompt = prompt()
 
 def llm(text):
-
     global chat_history
 
     history = "\n".join(chat_history)
@@ -95,51 +93,99 @@ def llm(text):
 
     content = [
         prompt,
-
         f"""
-        RELEVANT CHAT HISTORY:
-        {history}
-        """,
-
+RELEVANT CHAT HISTORY:
+{history}
+""",
         f"""
-        RELEVANT LONG-TERM MEMORY:
-        {mem}
-        """,
-
+RELEVANT LONG-TERM MEMORY:
+{mem}
+""",
         f"""
-        CURRENT USER MESSAGE:
-        {text}
-        """
+CURRENT USER MESSAGE:
+{text}
+"""
     ]
 
-    if "check" in text or "wrong" in text:       
-        screenshot , code = ss()
+    checking = "check" in text.lower() or "wrong" in text.lower()
+
+    if checking:
+        screenshot, code = ss()
+
         content.append(screenshot)
         content.append(f"""
-        CODE FROM USER'S SCREEN:
-        {code}
-        """)
-        chat_history.append(f"User: {text}")
+CODE FROM USER'S SCREEN:
+{code}
+""")
+
         chat_history.append(f"Code:\n{code}")
 
-    response = client.models.generate_content(
-        model = "gemini-3.5-flash-lite",
-        contents = content
-    )
+    if checking:
+        response = client.models.generate_content(
+            model="gemini-3.5-flash-lite",
+            contents=content,
+            config={
+                "response_mime_type": "application/json",
+                "response_schema": {
+                    "type": "object",
+                    "properties": {
+                        "answer": {
+                            "type": "string"
+                        },
+                        "errors": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "line": {
+                                        "type": "integer"
+                                    },
+                                    "old": {
+                                        "type": "string"
+                                    },
+                                    "new": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": ["line", "old", "new"]
+                            }
+                        }
+                    },
+                    "required": ["answer", "errors"]
+                }
+            }
+        )
+
+        data = json.loads(response.text)
+
+        answer = data["answer"]
+        errors = data["errors"]
+
+        with open("errors.json", "w", encoding="utf-8") as file:
+            json.dump(errors, file, indent=4, ensure_ascii=False)
+
+    else:
+        response = client.models.generate_content(
+            model="gemini-3.5-flash-lite",
+            contents=content
+        )
+
+        answer = response.text
 
     chat_history.append(f"User: {text}")
-    chat_history.append(f"Jax: {response.text}")
+    chat_history.append(f"Jax: {answer}")
 
     chat_history = chat_history[-10:]
 
     with open("chat_history.json", "w", encoding="utf-8") as file:
         json.dump(chat_history, file, indent=4)
 
-    response = clean_text(response.text)
+    answer = clean_text(answer)
 
-    print("User : ", text)
-    print("Jax : ", response)
-    return response
+    print("User :", text)
+    print("Jax :", answer)
+
+    return answer
 
 while True:
     text = listen()

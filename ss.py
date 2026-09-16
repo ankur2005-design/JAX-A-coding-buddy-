@@ -3,14 +3,20 @@ import time
 import pyperclip
 
 def ss():
-    screenshot = pyautogui.screenshot()
-    time.sleep(1)
-    
     pyautogui.click(x=960 , y=540)
-    time.sleep(1)
+    time.sleep(0.1)
 
     pyautogui.hotkey("ctrl" , "a")
     pyautogui.hotkey("ctrl" , "c")
+    time.sleep(1)
+    
     code = pyperclip.paste()
+    
+    numbered_code = "\n".join(
+        f"{i} | {line}"
+        for i, line in enumerate(code.splitlines(), 1)
+    )
+    
+    screenshot = pyautogui.screenshot()
 
-    return screenshot , code
+    return screenshot , numbered_code
