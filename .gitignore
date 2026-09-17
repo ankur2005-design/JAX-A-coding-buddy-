@@ -3,4 +3,9 @@
 __pycache__
 memory.json
 chat_history.json
+errors.json
 *.pyc
+build/
+dist/
+JAX.spec
+JAX.ico
