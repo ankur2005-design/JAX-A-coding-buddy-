@@ -1,11 +1,22 @@
+# Python virtual environment
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Test cache
+.pytest_cache/
+
+# API secrets
 .env
-.venv
-__pycache__
-memory.json
+.env.*
+
+# Local runtime data
 chat_history.json
+memory.json
 errors.json
-*.pyc
-build/
-dist/
-JAX.spec
-JAX.ico
+
+# Temporary backup files in tools
+tools/*.2026*
