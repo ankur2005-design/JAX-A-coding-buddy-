@@ -6,7 +6,7 @@ def calculate_total(price, quantity):
 
     print("Total:", total)
     print("Tax:", tax)
-    print("Final total:", final_total)
+    print("Final total:", final_totl)
 
 
 def divide(a, b):

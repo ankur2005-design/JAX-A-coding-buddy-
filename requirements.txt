@@ -1,0 +1,9 @@
+openai
+python-dotenv
+SpeechRecognition
+edge-tts
+pygame
+PyAutoGUI
+pyperclip
+PyGetWindow
+pytest
